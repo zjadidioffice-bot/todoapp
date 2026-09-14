@@ -1,5 +1,5 @@
 import { useState,useEffect } from "react"
-
+import "./App.css"
 
 function App()
 {
@@ -15,14 +15,35 @@ useEffect(()=>{
   });
 },[]);
 
+const handleToggle=(todo)=>{
+  fetch(`http://localhost:3000/api/todos/${todo._id}`,{
+    method:"PUT",
+    headers:{
+      "Content-Type":"application/json",
+    },
+    body:JSON.stringify({
+      title:todo.title,
+      completed:!todo.completed,
+    }),
+  })
+  .then((response)=>response.json())
+  .then((updateTodo)=>{
+    setTodos(
+      todos.map((item)=>
+      item._id===todo._id ? updateTodo:item)
+    );
+  });
+};
+
 const handleUpdate=(id)=>{
-  fetch(`http://localhost:3000/api/todos/${id}`,{
+  fetch(`http://localhost:3000/api/todos/${todo._id}`,{
     method:"PUT",
     headers:{
       "Content-Type":"application/json",
     },
     body:JSON.stringify({
       title:editingTitle,
+      completed:todo.completed,
     }),
   })
   .then((response)=>response.json())
@@ -67,10 +88,10 @@ const handleDelete=(id)=>{
 };
 
   return(
-  <div>
+  <div className="container">
     <h1>TODO APP</h1>
 
-    <form onSubmit={handleSubmit}>
+    <form className="todo-form" onSubmit={handleSubmit}>
       <input
       type="text"
       value={title}
@@ -82,7 +103,7 @@ const handleDelete=(id)=>{
 
 
     {todos.map((todo) => (
-  <div key={todo._id}>
+  <div className="todo" key={todo._id}>
     {editingId === todo._id ? (
       <>
         <input
@@ -91,11 +112,12 @@ const handleDelete=(id)=>{
           onChange={(event) => setEditingTitle(event.target.value)}
         />
 
-        <button onClick={() => handleUpdate(todo._id)}>
+        <button className="save-button"
+         onClick={() => handleUpdate(todo._id)}>
           Save
         </button>
 
-        <button
+        <button className="cancle-button"
           onClick={() => {
             setEditingId(null);
             setEditingTitle("");
@@ -106,17 +128,22 @@ const handleDelete=(id)=>{
       </>
     ) : (
       <>
-        <h3>{todo.title}</h3>
-
+      <input
+        type="checkbox"
+        checked={todo.completed}
+        onChange={()=>handleToggle(todo)}
+        />
+        <h3 className="todo-title">{todo.title}</h3>
         <p>
           {todo.completed ? "Completed" : "Not completed"}
         </p>
 
-        <button onClick={() => handleDelete(todo._id)}>
+        <button className="delete-button"
+         onClick={() => handleDelete(todo._id)}>
           Delete
         </button>
 
-        <button
+        <button className="edit-button"
           onClick={() => {
             setEditingId(todo._id);
             setEditingTitle(todo.title);
