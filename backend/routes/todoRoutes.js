@@ -1,10 +1,10 @@
 const express=require("express")
 const{createTodo,getTodos,updateTodo,deleteTodo}=require("../controllers/todoController")
-
+const authMiddleware=require("../middleware/authMiddleware")
 const router=express.Router()
 
-router.get("/",getTodos)
-router.post("/",createTodo);
-router.put("/:id",updateTodo);
-router.delete("/:id",deleteTodo);
+router.get("/",authMiddleware,getTodos)
+router.post("/",authMiddleware,createTodo);
+router.put("/:id",authMiddleware,updateTodo);
+router.delete("/:id",authMiddleware,deleteTodo);
 module.exports=router;

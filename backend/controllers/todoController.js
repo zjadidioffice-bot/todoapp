@@ -2,7 +2,9 @@ const Todo = require("../models/Todo");
 
 const getTodos = async (req, res) => {
     try {
-        const todos = await Todo.find();
+        const todos = await Todo.find({
+            user: req.userId,
+        });
         res.status(200).json(todos);
     } catch (error) {
         res.status(500).json({
@@ -16,6 +18,7 @@ const createTodo = async (req, res) => {
         const { title } = req.body;
         const todo = await Todo.create({
             title,
+            user: req.userId,
         });
         res.status(201).json(todo);
     } catch (error) {
@@ -28,8 +31,11 @@ const createTodo = async (req, res) => {
 const updateTodo = async (req, res) => {
     try {
         const { title, completed } = req.body;
-        const todo = await Todo.findByIdAndUpdate(
-            req.params.id,
+        const todo = await Todo.findOneAndUpdate(
+            {
+                _id: req.params.id,
+                user: req.userId
+            },
             {
                 title,
                 completed,
@@ -51,7 +57,10 @@ const updateTodo = async (req, res) => {
 
 const deleteTodo = async (req, res) => {
     try {
-        const todo = await Todo.findByIdAndDelete(req.params.id);
+        const todo = await Todo.findOneAndDelete({
+            _id: req.params.id,
+            user: req.userId,
+        });
         if (!todo) {
             return res.status(404).json({
                 message: "todo not found",
@@ -63,7 +72,7 @@ const deleteTodo = async (req, res) => {
         console.log(error)
         res.status(500).json({
             message: "error deleing todo",
-       error:error.message
+            error: error.message
         });
     }
 };

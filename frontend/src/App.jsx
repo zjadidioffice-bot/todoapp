@@ -1,6 +1,6 @@
 import { useState,useEffect } from "react"
 import "./App.css"
-
+import Register from "./components/Register";
 function App()
 {
 const[todos,setTodos]=useState([]);
@@ -89,6 +89,7 @@ const handleDelete=(id)=>{
 
   return(
   <div className="container">
+    <Register/>
     <h1>TODO APP</h1>
 
     <form className="todo-form" onSubmit={handleSubmit}>
