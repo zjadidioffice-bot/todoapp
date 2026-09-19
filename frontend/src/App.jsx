@@ -7,11 +7,15 @@ function App() {
   const [title, setTitle] = useState("");
   const [editingId, setEditingId] = useState(null);
   const [editingTitle, setEditingTitle] = useState("");
-  const[isLoggedIn,setIsLoggedIn]=useState(
+  const [showRegister,setShowRegister]=useState(false);
+  const [user, setUser] = useState(
+    JSON.parse(localStorage.getItem("user"))
+  );
+  const [isLoggedIn, setIsLoggedIn] = useState(
     !!localStorage.getItem("token")
   );
   useEffect(() => {
-    if(!isLoggedIn){
+    if (!isLoggedIn) {
       return;
     }
     const token = localStorage.getItem("token");
@@ -28,6 +32,15 @@ function App() {
         }
       });
   }, [isLoggedIn]);
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+
+    setIsLoggedIn(false);
+    setUser(null);
+    setTodos([]);
+  };
 
   const handleToggle = (todo) => {
     const token = localStorage.getItem("token");
@@ -119,77 +132,107 @@ function App() {
 
   return (
     <div className="container">
-      <Login onLogin={()=>setIsLoggedIn(true)}/>
-      <Register />
-      <h1>TODO APP</h1>
+      {!isLoggedIn ? (
+        <>
+        {showRegister?(
+          <>
+          <Register/>
+          <button onClick={()=>setShowRegister(false)}>go to login</button>
+          </>
+        ):(
+          <>
+          <Login
+          onLogin={()=>{
+            setIsLoggedIn(true);
+            setUser(JSON.parse(localStorage.getItem("user")));
+          }}
+          />
+          <button onClick={()=>setShowRegister(true)}>go to register</button>
+          </>
+        )
 
-      <form className="todo-form" onSubmit={handleSubmit}>
-        <input
-          type="text"
-          value={title}
-          onChange={(event) => setTitle(event.target.value)}
-          placeholder="enter todo..."
-        />
-        <button type="submit">add todo</button>
-      </form>
+        }
+        </>
+      ) : (
+        <>
+          <h1>TODO APP</h1>
 
+          <p>welcome {user?.name}</p>
+          <button onClick={handleLogout}>logout</button>
+          <form className="todo-form" onSubmit={handleSubmit}>
+            <input
+              type="text"
+              value={title}
+              onChange={(event) => setTitle(event.target.value)}
+              placeholder="enter todo..."
+            />
+            <button type="submit">add todo</button>
+          </form>
 
-      {todos.map((todo) => (
-        <div className="todo" key={todo._id}>
-          {editingId === todo._id ? (
-            <>
-              <input
-                type="text"
-                value={editingTitle}
-                onChange={(event) => setEditingTitle(event.target.value)}
-              />
+          {todos.map((todo) => (
+            <div className="todo" key={todo._id}>
+              {editingId === todo._id ? (
+                <>
+                  <input
+                    type="text"
+                    value={editingTitle}
+                    onChange={(event) => setEditingTitle(event.target.value)}
+                  />
+                  <button className="save-button"
+                    onClick={() => handleUpdate(todo)}>
+                    Save
+                  </button>
 
-              <button className="save-button"
-                onClick={() => handleUpdate(todo)}>
-                Save
-              </button>
+                  <button className="cancel-button"
+                    onClick={() => {
+                      setEditingId(null);
+                      setEditingTitle("");
+                    }}
+                  >
+                    Cancel
+                  </button>
+                </>
+              ) : (
 
-              <button className="cancel-button"
-                onClick={() => {
-                  setEditingId(null);
-                  setEditingTitle("");
-                }}
-              >
-                Cancel
-              </button>
-            </>
-          ) : (
-            <>
-              <input
-                type="checkbox"
-                checked={todo.completed}
-                onChange={() => handleToggle(todo)}
-              />
-              <h3 className="todo-title">{todo.title}</h3>
-              <p>
-                {todo.completed ? "Completed" : "Not completed"}
-              </p>
+                <>
+                  <input
+                    type="checkbox"
+                    checked={todo.completed}
+                    onChange={() => handleToggle(todo)}
+                  />
+                  <h3 className="todo-title">{todo.title}</h3>
+                  <p>
+                    {todo.completed ? "Completed" : "Not completed"}
+                  </p>
 
-              <button className="delete-button"
-                onClick={() => handleDelete(todo._id)}>
-                Delete
-              </button>
+                  <button className="delete-button"
+                    onClick={() => handleDelete(todo._id)}>
+                    Delete
+                  </button>
 
-              <button className="edit-button"
-                onClick={() => {
-                  setEditingId(todo._id);
-                  setEditingTitle(todo.title);
-                }}
-              >
-                Edit
-              </button>
-            </>
-          )}
-        </div>
-      ))}
+                  <button className="edit-button"
+                    onClick={() => {
+                      setEditingId(todo._id);
+                      setEditingTitle(todo.title);
+                    }}
+                  >
+                    Edit
+                  </button>
+                </>
+              )}
+            </div>
+          ))}
+        </>
+      )}
     </div>
+
   );
 
 }
+
+
+
+
+
 
 export default App;

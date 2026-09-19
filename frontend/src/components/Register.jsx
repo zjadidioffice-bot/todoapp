@@ -4,7 +4,7 @@ function Register() {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-
+    const[message,setMessage]=useState("");
     const handleRegister = (event) => {
         event.preventDefault();
 
@@ -21,12 +21,22 @@ function Register() {
         })
             .then((response) => response.json())
             .then((data) => {
+                setMessage(data.message);
                 console.log(data);
+
+                if(data.message==="user registered successfully"){
+                    setName("");
+                    setEmail("");
+                    setPassword("");
+                }
+            })
+            .catch(()=>{
+                setMessage("server error");
             });
     };
 
     return (
-        <div>
+        <div className="auth-box">
             <h2>register</h2>
             <form onSubmit={handleRegister}>
                 <input
@@ -49,6 +59,7 @@ function Register() {
                 />
             <button type="submit">register</button>                    
             </form>
+            {message&&<p>{message}</p>}
         </div>
     );
 }

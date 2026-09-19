@@ -3,10 +3,10 @@ import { useState } from "react";
 function Login({onLogin}){
     const[email,setEmail]=useState("");
     const[password,setPassword]=useState("");
-
+    const[message,setMessage]=useState("");
     const handleLogin=(event)=>{
         event.preventDefault();
-
+        setMessage("");
         fetch("http://localhost:3000/api/auth/login",{
             method:"POST",
             headers:{
@@ -25,13 +25,17 @@ function Login({onLogin}){
                 localStorage.setItem("token",data.token);
                 localStorage.setItem("user",JSON.stringify(data.user));
 
-                alert("login successful");
                 onLogin();
+            }else{
+                setMessage(data.message);
             }
+            })
+            .catch(()=>{
+                setMessage("server error");
         });
     };
     return(
-        <div>
+        <div className="auth-box">
            <h2>login</h2> 
            <form onSubmit={handleLogin}>
             <input
@@ -48,6 +52,7 @@ function Login({onLogin}){
             />
             <button type="submit">login</button>
            </form>
+           {message && <p>{message}</p>}
         </div>
     );
 }
